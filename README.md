@@ -10,14 +10,14 @@ The course culminates in open-ended projects where students design and implement
 
 ```
 SP25_AE370/
-├── Project_1_WingFlutter/         # Project 1: Aeroelastic Wing Flutter
-│   ├── <Paper placeholder>.pdf    # A copy of the research paper
-│   ├── flutter_model.py           # Shared solver logic (RK4, RK45, dynamics)
-│   ├── simulations/               # All Python scripts to run simulations
-│   ├── results/                   # Output plots and animation files
-│   ├── README.md                  # Project-specific documentation
-│   └── .gitignore                 # Ignore bytecode and results
-└── (Project_2_<name>/)            # Future project placeholder
+├── Project_1_WingFlutter/                  # Project 1: Aeroelastic Wing Flutter
+│   ├── Group_930am_AE370_Project 1.pdf     --- # A copy of the research paper
+│   ├── flutter_model.py                    --- # Shared solver logic (RK4, RK45, dynamics)
+│   ├── simulations/                        --- # All Python scripts to run simulations
+│   ├── results/                            --- # Output plots and animation files
+│   ├── README.md                           --- # Project-specific documentation
+│   └── .gitignore                          --- # Ignore bytecode and results
+└── (Project_2_<name>/)                     # Future project placeholder
 ```
 
 ## Project 1: Wing Flutter Simulation
