@@ -1,6 +1,6 @@
 # AE370 Projects
 
-This repository contains the course projects conducted in **AE370 - Aerospace Numerical Methods** taught by Professor Goza during the Spring semester of 2025 at the Univeristy of Illinois at Urbana-Champaign. 
+This repository contains the course projects conducted in **AE370 - Aerospace Numerical Methods** taught by [Professor Andres Goza](https://aerospace.illinois.edu/directory/profile/agoza) during the Spring semester of 2025 at the Univeristy of Illinois at Urbana-Champaign. 
 This course, as the name suggests, provides a hands-on introduction to core numerical methods essential for solving real-world aerospace engineering problems. 
 Emphasis is placed on both the theoretical foundations and computational implementation of techniques used across structural mechanics, aerodynamics, and flight dynamics.
 
