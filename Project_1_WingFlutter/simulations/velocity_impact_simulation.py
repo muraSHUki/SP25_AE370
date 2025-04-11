@@ -35,7 +35,7 @@ def detect_flutter(solver):
         params = base_params.copy()
         params['U'] = U
 
-        t_vals, y_vals = solver(wing_flutter_rhs, (0, 5), y0, h=0.01, params=params)
+        t_vals, y_vals = solver(wing_flutter_rhs, (0, 10), y0, h=0.01, params=params)
 
         max_theta = np.max(np.abs(y_vals[:, 2]))
         max_h = np.max(np.abs(y_vals[:, 0]))
@@ -43,12 +43,21 @@ def detect_flutter(solver):
         m, I, k_h, k_t = params['m'], params['I_alpha'], params['k_h'], params['k_theta']
         h, h_dot, th, th_dot = y_vals[:, 0], y_vals[:, 1], y_vals[:, 2], y_vals[:, 3]
         energy = 0.5 * m * h_dot**2 + 0.5 * k_h * h**2 + 0.5 * I * th_dot**2 + 0.5 * k_t * th**2
-        is_growing = np.mean(energy[-10:]) > 2 * np.mean(energy[:10])
+
+        initial = np.mean(energy[:10])
+        mid = np.mean(energy[len(energy)//2 : len(energy)//2 + 10])
+        final = np.mean(energy[-10:])
+
+        is_growing = (
+            final > 1e6 * initial and
+            mid > 1e5 * initial and
+            max_theta > 60
+        )
 
         max_theta_values.append(max_theta)
         max_h_values.append(max_h)
         energy_growth_flags.append(is_growing)
-
+        
     return max_theta_values, max_h_values, energy_growth_flags
 
 
@@ -68,10 +77,10 @@ base_params = {
 }
 
 # --- Initial Conditions
-y0 = [0.01, 0.0, 0.05, 0.0]
+y0 = [0.01, 0.0, 0.01, 0.0]
 
 # --- Velocity Values
-U_values = np.linspace(0.0001, 100, 100)
+U_values = np.linspace(1, 100, 100)
 
 
 
@@ -86,11 +95,11 @@ plt.plot(U_values, rk4_h, '-', label='Max h(t)', alpha=0.7)
 
 flutter_U_rk4 = next((U for U, grow in zip(U_values, rk4_growth) if grow), None)
 if flutter_U_rk4:
-    plt.axvline(x=flutter_U_rk4, linestyle='--', color='red', label=f'Flutter Onset ≈ {flutter_U_rk4:.1f} m/s')
+    plt.axvline(x=flutter_U_rk4, linestyle='--', color='red', label=f'Major Flutter Onset ≈ {flutter_U_rk4:.1f} m/s')
 
 plt.xlabel('Freestream Velocity U (m/s)')
 plt.ylabel('Max Displacement')
-plt.title('Flutter Detection Using RK4')
+#plt.title('Flutter Detection Using RK4')
 plt.grid(True)
 plt.legend()
 plt.tight_layout()
