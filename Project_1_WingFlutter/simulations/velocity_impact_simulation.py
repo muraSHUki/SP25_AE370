@@ -99,7 +99,7 @@ if flutter_U_rk4:
 
 plt.xlabel('Freestream Velocity U (m/s)')
 plt.ylabel('Max Displacement')
-#plt.title('Flutter Detection Using RK4')
+plt.title('Flutter Detection Using RK4')
 plt.grid(True)
 plt.legend()
 plt.tight_layout()
