@@ -5,8 +5,8 @@ __pycache__/
 *.pyd
 
 # Ignore result outputs
-/results/*.png
-/results/*.gif
+# /results/*.png
+# /results/*.gif
 
 # Ignore VSCode settings
 .vscode/
