@@ -1,56 +1,42 @@
 import numpy as np
 
-def fdtd_step(u_prev, u_curr, c, dt, dx, dy, mask=None, source_func=None, source_loc=None, t=0.0):
+def fdtd_update(p_nm1, p_n, dx, dt, c, domain_mask=None):
     """
-    Perform one FDTD time step for the 2D wave equation.
+    Performs a single FDTD update step for the 2D scalar wave equation.
 
-    Parameters
-    ----------
-    u_prev : 2D ndarray
-        Wave field at time step n-1.
-    u_curr : 2D ndarray
-        Wave field at time step n.
-    c : float
-        Wave speed.
-    dt : float
-        Time step size.
-    dx : float
-        Grid spacing in x.
-    dy : float
-        Grid spacing in y.
-    mask : 2D ndarray or None
-        Boolean array indicating interior (True) vs exterior (False) grid points.
-    source_func : function or None
-        Time-dependent source function f(t).
-    source_loc : tuple of ints or None
-        Grid location (i, j) where source is applied.
-    t : float
-        Current simulation time.
+    Discretized update:
+        p_np1[i,j] = 2*p_n[i,j] - p_nm1[i,j] + (c*dt/dx)^2 * Laplacian[p_n]
 
-    Returns
-    -------
-    u_next : 2D ndarray
-        Wave field at time step n+1.
+    Parameters:
+        p_nm1 : ndarray, pressure field at time step n-1
+        p_n   : ndarray, pressure field at time step n
+        dx    : spatial grid size (assumed square grid)
+        dt    : time step size
+        c     : wave speed
+        domain_mask : optional boolean array (True = valid region)
+
+    Returns:
+        p_np1 : ndarray, pressure field at next time step (n+1)
     """
-    nx, ny = u_curr.shape
-    u_next = np.zeros_like(u_curr)
+    Nx, Ny = p_n.shape
+    p_np1 = np.zeros_like(p_n)
 
-    # Interior update using central differences
-    u_next[1:-1, 1:-1] = (
-        2 * u_curr[1:-1, 1:-1] - u_prev[1:-1, 1:-1]
-        + (c * dt) ** 2 * (
-            (u_curr[2:, 1:-1] - 2 * u_curr[1:-1, 1:-1] + u_curr[:-2, 1:-1]) / dx**2 +
-            (u_curr[1:-1, 2:] - 2 * u_curr[1:-1, 1:-1] + u_curr[1:-1, :-2]) / dy**2
+    # Interior FDTD update (second-order central difference)
+    p_np1[1:-1, 1:-1] = (
+        2 * p_n[1:-1, 1:-1] - p_nm1[1:-1, 1:-1] +
+        (c * dt / dx)**2 * (
+            p_n[2:, 1:-1] + p_n[:-2, 1:-1] +
+            p_n[1:-1, 2:] + p_n[1:-1, :-2] -
+            4 * p_n[1:-1, 1:-1]
         )
     )
 
-    # Apply source term if defined
-    if source_func is not None and source_loc is not None:
-        i, j = source_loc
-        u_next[i, j] += (dt ** 2) * source_func(t)
+    # Boundary conditions: fixed (Dirichlet)
+    p_np1[0, :] = p_np1[-1, :] = 0
+    p_np1[:, 0] = p_np1[:, -1] = 0
 
-    # Apply boundary or masking
-    if mask is not None:
-        u_next[~mask] = 0.0
+    # Apply mask to suppress values outside the domain
+    if domain_mask is not None:
+        p_np1[~domain_mask] = 0
 
-    return u_next
+    return p_np1

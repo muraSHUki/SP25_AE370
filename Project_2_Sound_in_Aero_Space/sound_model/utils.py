@@ -1,62 +1,37 @@
 import numpy as np
 
-###### NORM CALCULATIONS ###########################################################################
-
-def grid_L2_norm(u, dx, dy):
+def get_tick_labels(vmin, vmax, count=9):
     """
-    Compute the grid-function 2-norm of a field u on a uniform grid.
+    Returns tick locations and formatted string labels for a colorbar.
 
-    Parameters
-    ----------
-    u : 2D ndarray
-        Field values at grid points.
-    dx, dy : float
-        Grid spacing in x and y.
+    Parameters:
+        vmin, vmax : float
+            Min and max values for the data range
+        count : int
+            Number of ticks (default is 9 for symmetric layout)
 
-    Returns
-    -------
-    float
-        Grid-based L2 norm: sqrt(sum u_ij^2 * dx * dy)
+    Returns:
+        tick_vals : np.ndarray
+        tick_labels : list of str
     """
-    return np.sqrt(np.sum(u**2) * dx * dy)
+    tick_vals = np.linspace(vmin, vmax, count)
+    tick_labels = [f"{v:+.4f}" for v in tick_vals]
+    return tick_vals, tick_labels
 
-###### VALUE NORMALIZATION ##########################################################################
-
-def normalize_field(u):
+def frame_sampler(Nt, fps=30, duration=2.0):
     """
-    Normalize a 2D field to the range [-1, 1].
+    Returns a list of time step indices to sample evenly spaced frames for animation.
 
-    Parameters
-    ----------
-    u : 2D ndarray
-        Field to normalize.
+    Parameters:
+        Nt : int
+            Total number of simulation steps
+        fps : int
+            Frames per second of output animation
+        duration : float
+            Desired duration of animation in seconds
 
-    Returns
-    -------
-    2D ndarray
-        Normalized field.
+    Returns:
+        frame_indices : list of int
     """
-    max_val = np.max(np.abs(u))
-    return u / max_val if max_val != 0 else u
-
-###### MASK HANDLING ###############################################################################
-
-def apply_mask(u, mask):
-    """
-    Zero out values of u outside the mask.
-
-    Parameters
-    ----------
-    u : 2D ndarray
-        Field to mask.
-    mask : 2D boolean ndarray
-        True = inside room, False = outside.
-
-    Returns
-    -------
-    2D ndarray
-        Masked field.
-    """
-    u_masked = u.copy()
-    u_masked[~mask] = 0.0
-    return u_masked
+    total_frames = int(fps * duration)
+    return np.linspace(0, Nt - 1, total_frames, dtype=int)

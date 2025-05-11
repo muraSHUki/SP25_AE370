@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Results and generated figures
+results/**/*.png
+results/**/*.gif
+results/**/*.mp4
+
+# IPython / Jupyter notebooks
+*.ipynb
+.ipynb_checkpoints/
+
+# Package distribution
+*.egg-info/
+dist/
+build/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.bak
+*.swp
+*.DS_Store
+Thumbs.db
+
+# IDE/workspace files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Environment files
+.env
+.venv/
+env/
+venv/
