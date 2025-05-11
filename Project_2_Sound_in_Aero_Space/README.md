@@ -23,14 +23,16 @@ Project_2_AeroSpaceSoundWave/
 │   ├── speech_in_box.py                  --- # Burst source in simple box
 │   ├── pulse_in_room.py                  --- # Gaussian pulse in polygonal room
 │   ├── speech_in_room.py                 --- # Single speech burst in room
-│   └── conversation_in_room.py           --- # Two-source interaction
+│   ├── conversation_in_room.py           --- # Two-source interaction
+│   └── convergence_test.py               --- # Error for FDTD solver
 │
 ├── results/                              # Saved figures and animations
 │   ├── pulse_in_box/
 │   ├── speech_in_box/
 │   ├── pulse_in_room/
 │   ├── speech_in_room/
-│   └── conversation_in_room/
+│   ├── conversation_in_room/
+│   └── convergence_test/
 ```
 
 ## Features
