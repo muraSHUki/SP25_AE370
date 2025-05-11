@@ -13,7 +13,7 @@ from room_geometry.aero_space_geometry import generate_domain_mask_fast, plot_ro
 
 # === Simulation Parameters ===
 Lx, Ly = 15.0, 5.0
-Nx, Ny = 601, 201
+Nx, Ny = 1501, 501
 c = 343.0
 T = 0.050
 CFL = 0.4
@@ -54,39 +54,66 @@ for n in range(Nt):
 
     p_nm1, p_n = p_n, p_np1
 
+
 # === Snapshot Selection ===
-snapshot_indices = np.linspace(0, len(frames) - 1, 15, dtype=int)
+snapshot_indices = np.linspace(1e-5, len(frames) - 1, 18, dtype=int)
 snapshot_times = [timestamps[i] for i in snapshot_indices]
 snapshot_frames = [frames[i] for i in snapshot_indices]
 
 # === Plotting Parameters ===
-vmin, vmax = -0.130, 0.130
+vmin, vmax = -0.300, 0.300
 tick_vals, tick_labels = get_tick_labels(vmin, vmax)
 levels = np.linspace(vmin, vmax, 100)
 
 # === Snapshot Plot ===
-fig, axes = plt.subplots(5, 3, figsize=(16, 14))
-cbar_ax = fig.add_axes([1.00, 0.15, 0.02, 0.7])
+plt.rcParams.update({
+    "font.size": 10,
+    "axes.titlesize": 10,
+    "axes.labelsize": 10,
+    "xtick.labelsize": 9,
+    "ytick.labelsize": 9,
+    "font.family": "serif",
+})
 
-for ax, snap, t in zip(axes.flat, snapshot_frames, snapshot_times):
+fig, axes = plt.subplots(6, 3, figsize=(6.5, 9))  # Wider layout for full room
+cbar_ax = fig.add_axes([0.93, 0.15, 0.015, 0.7])   # Slim vertical colorbar
+
+for idx, (ax, snap, t) in enumerate(zip(axes.flat, snapshot_frames, snapshot_times)):
     ctf = ax.contourf(X, Y, snap, levels=levels, cmap='viridis', vmin=vmin, vmax=vmax)
     plot_room_and_pillars(ax)
-    ax.set_title(f"t = {t*1000:.2f} ms", pad=8)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
+    ax.set_title(f"t = {t*1000:.2f} ms", pad=4)
     ax.set_aspect('equal')
 
-for i in range(len(snapshot_frames), 15):
+    # Only label y-axis on the first column
+    if idx % 3 == 0:
+        ax.set_ylabel("y")
+        ax.set_yticks([0, 1, 2, 3, 4, 5])
+    else:
+        ax.set_yticklabels([])
+
+    # Only label x-axis on the bottom row
+    if idx // 3 == 5:  # Last row (row index 4)
+        ax.set_xlabel("x")
+        ax.set_xticks([0, 3, 6, 9, 12, 15])
+    else:
+        ax.set_xticklabels([])
+
+# Remove unused axes if fewer than 15 frames
+for i in range(len(snapshot_frames), 18):
     fig.delaxes(axes.flat[i])
 
+# Colorbar
 cbar = fig.colorbar(ctf, cax=cbar_ax)
-cbar.set_label("Pressure")
+cbar.set_label("Pressure", fontsize=10)
+cbar.ax.tick_params(labelsize=9)
 cbar.set_ticks(tick_vals)
 cbar.set_ticklabels(tick_labels)
 
-plt.tight_layout()
+# Manual layout control
+fig.subplots_adjust(left=0.06, right=0.91, bottom=0.06, top=0.94, wspace=0.1, hspace=0.25)
+
+# Save figure
 plt.savefig("../results/pulse_in_room/snapshots.png", dpi=300, bbox_inches='tight')
-plt.show()
 
 # === Animation ===
 fig_anim, ax_anim = plt.subplots(figsize=(10, 4))
@@ -100,7 +127,7 @@ def update_plot(i):
     ax_anim.clear()
     contour = ax_anim.contourf(X, Y, frames[i], levels=levels, cmap='viridis', vmin=vmin, vmax=vmax)
     plot_room_and_pillars(ax_anim)
-    ax_anim.set_title(f"2D Wave Propagation\nTime: {timestamps[i]:.3f} s")
+    ax_anim.set_title(f"2D Wave Propagation\nTime: {timestamps[i] * 1000:.3f} ms")
     ax_anim.set_xlabel("x")
     ax_anim.set_ylabel("y")
     ax_anim.set_aspect('equal')

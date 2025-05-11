@@ -11,10 +11,10 @@ from sound_model.sources import gaussian_pulse
 from sound_model.utils import get_tick_labels
 
 # === Simulation Parameters ===
-Lx, Ly = 1.0, 1.0
-Nx, Ny = 201, 201
+Lx, Ly = 1, 1
+Nx, Ny = 101, 101
 c = 343.0
-T = 0.003
+T = 0.010
 CFL = 0.4
 
 dx = Lx / (Nx - 1)
@@ -37,7 +37,7 @@ p_n = p0.copy()
 snapshots = []
 frames = []
 
-snapshot_times = np.linspace(0, T - 1e-5, 9)
+snapshot_times = np.linspace(1e-5, T - 1e-4, 15)
 snapshot_indices = [int(t / dt) for t in snapshot_times]
 
 # === Time-Stepping Loop ===
@@ -52,33 +52,61 @@ for n in range(Nt):
     p_nm1, p_n = p_n, p_np1
 
 # === Plotting Parameters ===
-vmin, vmax = -0.075, 0.075
+vmin, vmax = -0.15, 0.15
 tick_vals, tick_labels = get_tick_labels(vmin, vmax)
 levels = np.linspace(vmin, vmax, 100)
 
 # === Snapshot Plot ===
-fig, axes = plt.subplots(3, 3, figsize=(12, 10))
-cbar_ax = fig.add_axes([1.00, 0.15, 0.02, 0.7])
+plt.rcParams.update({
+    "font.size": 10,
+    "axes.titlesize": 10,
+    "axes.labelsize": 10,
+    "xtick.labelsize": 9,
+    "ytick.labelsize": 9,
+    "font.family": "serif",
+})
 
-for ax, snap, t in zip(axes.flat, snapshots, snapshot_times):
+fig, axes = plt.subplots(5, 3, figsize=(6.5, 9))  # Full-page layout
+cbar_ax = fig.add_axes([0.92, 0.15, 0.015, 0.7])   # Slim, aligned colorbar
+
+# Plot each snapshot with selective axis labels
+for idx, (ax, snap, t) in enumerate(zip(axes.flat, snapshots, snapshot_times)):
     ctf = ax.contourf(X, Y, snap, levels=levels, cmap='viridis', vmin=vmin, vmax=vmax)
-    ax.set_title(f"t = {t*1000:.2f} ms", pad=8)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
+    ax.set_title(f"t = {t*1000:.2f} ms", pad=4)
     ax.set_aspect('equal')
 
-# Remove empty axes
-for i in range(len(snapshots), 9):
+    # y-axis for first column
+    if idx % 3 == 0:
+        ax.set_ylabel("y")
+        ax.set_yticks([0, 0.5, 1])
+    else:
+        ax.set_yticklabels([])
+
+    # x-axis for bottom row
+    if idx // 3 == 4:
+        ax.set_xlabel("x")
+        ax.set_xticks([0, 0.5, 1])
+    else:
+        ax.set_xticklabels([])
+
+
+# Remove any unused axes
+for i in range(len(snapshots), 15):
     fig.delaxes(axes.flat[i])
 
+# Add colorbar
 cbar = fig.colorbar(ctf, cax=cbar_ax)
-cbar.set_label("Pressure")
+cbar.set_label("Pressure", fontsize=10)
+cbar.ax.tick_params(labelsize=9)
 cbar.set_ticks(tick_vals)
 cbar.set_ticklabels(tick_labels)
 
-plt.tight_layout()
+# Adjust layout manually to fill page
+fig.subplots_adjust(left=0.06, right=0.90, bottom=0.06, top=0.95, wspace=0.12, hspace=0.25)
+
+# Save figure
 plt.savefig("../results/pulse_in_box/snapshots.png", dpi=300, bbox_inches='tight')
-plt.show()
+
 
 # === Animation ===
 fig_anim, ax_anim = plt.subplots(figsize=(6, 5))

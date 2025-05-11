@@ -11,10 +11,10 @@ from sound_model.sources import speech_burst
 from sound_model.utils import get_tick_labels
 
 # === Simulation Parameters ===
-Lx, Ly = 10.0, 10.0
-Nx, Ny = 301, 301
+Lx, Ly = 5.0, 5.0
+Nx, Ny = 501, 501
 c = 343.0
-T = 0.030
+T = 0.050
 CFL = 0.4
 
 dx = Lx / (Nx - 1)
@@ -27,7 +27,7 @@ y = np.linspace(0, Ly, Ny)
 X, Y = np.meshgrid(x, y, indexing='ij')
 
 # === Source Definition ===
-x0, y0 = 5, 5
+x0, y0 = 2.5, 2.5
 i_src = np.argmin(np.abs(x - x0))
 j_src = np.argmin(np.abs(y - y0))
 
@@ -44,7 +44,7 @@ p_n = np.zeros((Nx, Ny))
 snapshots = []
 frames = []
 
-snapshot_times = np.linspace(0, T - 3e-5, 9)
+snapshot_times = np.linspace(1e-5, T - 3e-5, 15)
 snapshot_indices = [int(t / dt) for t in snapshot_times]
 
 # === Time-Stepping Loop ===
@@ -64,32 +64,59 @@ for n in range(Nt):
     p_nm1, p_n = p_n, p_np1
 
 # === Plotting Parameters ===
-vmin, vmax = -0.0300, 0.0300
+vmin, vmax = -0.08, 0.08
 tick_vals, tick_labels = get_tick_labels(vmin, vmax)
 levels = np.linspace(vmin, vmax, 100)
 
 # === Snapshot Plot ===
-fig, axes = plt.subplots(3, 3, figsize=(12, 10))
-cbar_ax = fig.add_axes([1.00, 0.15, 0.02, 0.7])
+plt.rcParams.update({
+    "font.size": 10,
+    "axes.titlesize": 10,
+    "axes.labelsize": 10,
+    "xtick.labelsize": 9,
+    "ytick.labelsize": 9,
+    "font.family": "serif",
+})
 
-for ax, snap, t in zip(axes.flat, snapshots, snapshot_times):
+fig, axes = plt.subplots(5, 3, figsize=(6.5, 9))  # Paper-sized layout
+cbar_ax = fig.add_axes([0.92, 0.15, 0.015, 0.7])    # Slim vertical colorbar
+
+for idx, (ax, snap, t) in enumerate(zip(axes.flat, snapshots, snapshot_times)):
     ctf = ax.contourf(X, Y, snap, levels=levels, cmap='viridis', vmin=vmin, vmax=vmax)
-    ax.set_title(f"t = {t*1000:.2f} ms", pad=8)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
+    ax.set_title(f"t = {t*1000:.2f} ms", pad=4)
     ax.set_aspect('equal')
 
-for i in range(len(snapshots), 9):
+    # Label only leftmost subplots
+    if idx % 3 == 0:
+        ax.set_ylabel("y")
+        ax.set_yticks([0, 1, 2, 3, 4, 5])
+    else:
+        ax.set_yticklabels([])
+
+    # Label only bottom row subplots
+    if idx // 3 == 4:
+        ax.set_xlabel("x")
+        ax.set_xticks([0, 1, 2, 3, 4, 5])
+    else:
+        ax.set_xticklabels([])
+
+# Remove any unused axes
+for i in range(len(snapshots), 15):
     fig.delaxes(axes.flat[i])
 
+# Colorbar
 cbar = fig.colorbar(ctf, cax=cbar_ax)
-cbar.set_label("Pressure")
+cbar.set_label("Pressure", fontsize=10)
+cbar.ax.tick_params(labelsize=9)
 cbar.set_ticks(tick_vals)
 cbar.set_ticklabels(tick_labels)
 
-plt.tight_layout()
+# Manual layout control (no tight_layout)
+fig.subplots_adjust(left=0.07, right=0.90, bottom=0.08, top=0.94, wspace=0.12, hspace=0.25)
+
+# Save figure
 plt.savefig("../results/speech_in_box/snapshots.png", dpi=300, bbox_inches='tight')
-plt.show()
+
 
 # === Animation ===
 fig_anim, ax_anim = plt.subplots(figsize=(6, 5))

@@ -46,7 +46,7 @@ p_n = np.zeros((Nx, Ny))
 snapshots = []
 frames = []
 
-snapshot_times = np.linspace(0, T - 3e-5, 15)
+snapshot_times = np.linspace(1e-5, T - 3e-5, 18)
 snapshot_indices = [int(t / dt) for t in snapshot_times]
 
 # === Time-Stepping Loop ===
@@ -66,34 +66,59 @@ for n in range(Nt):
     p_nm1, p_n = p_n, p_np1
 
 # === Plotting Parameters ===
-vmin, vmax = -0.060, 0.060
+vmin, vmax = -0.080, 0.080
 tick_vals, tick_labels = get_tick_labels(vmin, vmax)
 levels = np.linspace(vmin, vmax, 100)
 
 # === Snapshot Plot ===
-fig, axes = plt.subplots(5, 3, figsize=(16, 14))
-fig.subplots_adjust(right=0.9)
-cbar_ax = fig.add_axes([1.00, 0.15, 0.02, 0.7])
+plt.rcParams.update({
+    "font.size": 10,
+    "axes.titlesize": 10,
+    "axes.labelsize": 10,
+    "xtick.labelsize": 9,
+    "ytick.labelsize": 9,
+    "font.family": "serif",
+})
 
-for ax, snap, t in zip(axes.flat, snapshots, snapshot_times):
+fig, axes = plt.subplots(6, 3, figsize=(6.5, 9))  # Full page size
+cbar_ax = fig.add_axes([0.93, 0.15, 0.015, 0.7])  # [left, bottom, width, height]
+
+for idx, (ax, snap, t) in enumerate(zip(axes.flat, snapshots, snapshot_times)):
     ctf = ax.contourf(X, Y, snap, levels=levels, cmap='viridis', vmin=vmin, vmax=vmax)
     plot_room_and_pillars(ax)
-    ax.set_title(f"t = {t*1000:.2f} ms", pad=8)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
+    ax.set_title(f"t = {t*1000:.2f} ms", pad=4)
     ax.set_aspect('equal')
 
-for i in range(len(snapshots), 15):
+    # Label y-axis on first column
+    if idx % 3 == 0:
+        ax.set_ylabel("y")
+        ax.set_yticks([0, 1, 2, 3, 4, 5])
+    else:
+        ax.set_yticklabels([])
+
+    # Label x-axis on bottom row
+    if idx // 3 == 5:  # Last row
+        ax.set_xlabel("x")
+        ax.set_xticks([0, 3, 6, 9, 12, 15])
+    else:
+        ax.set_xticklabels([])
+
+# Remove unused axes
+for i in range(len(snapshots), 18):
     fig.delaxes(axes.flat[i])
 
+# Colorbar
 cbar = fig.colorbar(ctf, cax=cbar_ax)
 cbar.set_label("Pressure")
+cbar.ax.tick_params(labelsize=9)
 cbar.set_ticks(tick_vals)
 cbar.set_ticklabels(tick_labels)
 
-plt.tight_layout()
+# Manual layout
+fig.subplots_adjust(left=0.06, right=0.91, bottom=0.06, top=0.94, wspace=0.1, hspace=0.25)
+
+# Save as high-quality PNG
 plt.savefig("../results/speech_in_room/snapshots.png", dpi=300, bbox_inches='tight')
-plt.show()
 
 # === Animation ===
 fig_anim, ax_anim = plt.subplots(figsize=(10, 4))
