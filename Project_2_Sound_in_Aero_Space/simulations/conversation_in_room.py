@@ -1,3 +1,8 @@
+import sys
+import os
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+os.makedirs("../results/conversation_in_room", exist_ok=True)
+
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import animation
