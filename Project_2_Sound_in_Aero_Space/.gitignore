@@ -4,9 +4,9 @@ __pycache__/
 *$py.class
 
 # Results and generated figures
-# results/**/*.png
-# results/**/*.gif
-# results/**/*.mp4
+results/**/*.png
+results/**/*.gif
+results/**/*.mp4
 
 # IPython / Jupyter notebooks
 *.ipynb
