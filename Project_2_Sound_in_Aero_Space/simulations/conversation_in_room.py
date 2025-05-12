@@ -115,7 +115,7 @@ plt.rcParams.update({
 })
 
 # --- Plot Layout ---
-fig, axes = plt.subplots(num_snapshots/3, 3, figsize=(6.5, 9))  # Full-page layout for 15 plots
+fig, axes = plt.subplots(5, 3, figsize=(6.5, 9))  # Full-page layout for 15 plots
 cbar_ax = fig.add_axes([0.93, 0.15, 0.015, 0.7])  # Clean colorbar position
 
 for idx, (ax, snap, t) in enumerate(zip(axes.flat, snapshots, snapshot_times)):
